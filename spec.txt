@@ -1,0 +1,11 @@
+Reg[0..31]
+
+Type:
+	III: op<31..27> | ra<26..22> | rb <21..17> | rc<16..12> | c<11..0>
+
+Instruction
+	FORMAT: opcode oprand(, oprand)	(default)
+
+	add ra, rb, rc	(op=12)
+	br rb 			(op=8, c=1)
+	la	ra, c(rb)

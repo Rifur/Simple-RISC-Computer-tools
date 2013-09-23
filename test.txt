@@ -1,0 +1,11 @@
+	la r2, 100
+	la r3, 200
+A:	add r1, r2, r3	; Hello
+	st r1, 0
+	stop
+B:	ld r1, 4(r4)	; Hello
+C:	ld r1, 10	; Hello
+	la r2, XD	;Hello
+	la r2, 0	;		Hello
+XD:	sub r3, r2, r1	;Hello
+	brzr r1, r2
