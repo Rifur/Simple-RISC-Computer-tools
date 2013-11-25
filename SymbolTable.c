@@ -46,7 +46,7 @@ int InsertLabel(LabelList *lblList, const char *name, int addr)
 	int length = strlen(name);
 	int i;
 	
-	if((i = SearchLabelByName(name)) != NOT_FOUND) {
+	if((i = __SearchLabelByName(name)) != NOT_FOUND) {
 		if(tb->labels[i].address == UNDEFINED_ADDR && addr != UNDEFINED_ADDR) {
 			tb->labels[i].address = addr;
 			return i;
@@ -67,7 +67,8 @@ int InsertLabel(LabelList *lblList, const char *name, int addr)
 	obj->name = (char *)malloc(sizeof(char)*(length+1));
 	sprintf(obj->name, "%s", name);
 	obj->address = addr;
-	
+	obj->key = tb->count;
+
 	return tb->count++;
 }
 
@@ -75,7 +76,7 @@ int InsertLabel(LabelList *lblList, const char *name, int addr)
 /**
  * Search a label by name in label list.
  */
-int SearchLabelByName(const char *name)
+int __SearchLabelByName(const char *name)
 {
 	LabelList *tb = &lblList;
 	int i;
@@ -89,6 +90,13 @@ int SearchLabelByName(const char *name)
 	return NOT_FOUND;
 }
 
+/**
+ * Search a label by name in label list.
+ */
+Label* SearchLabelByName(LabelList *lblList, const char *name)
+{
+	return SearchLabel(lblList, __SearchLabelByName(name));
+}
 
 /**
  * Search a label by index in label list.
@@ -101,6 +109,19 @@ Label* SearchLabel(LabelList *lblList, int index)
 	} else {
 		return &(tb->labels[index]);
 	}
+}
+
+/**
+ *	Get last inserted label.
+ */
+Label* LastLabel(LabelList *lblList)
+{
+	LabelList *tb = lblList;
+	if(tb->count-1 < 0) {
+		return NULL;
+	}
+
+	return &(tb->labels[tb->count-1]);
 }
 
 /**
@@ -119,6 +140,6 @@ Label* SearchLabel(LabelList *lblList, int index)
  		} else {
  			printf("addr: %06d (dec)", tb->labels[i].address);
  		}
- 		printf("\n");
+ 		printf("\tval: %d\n", tb->labels[i].value);
  	}
  }

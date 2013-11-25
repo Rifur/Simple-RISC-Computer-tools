@@ -23,6 +23,7 @@ typedef struct {
 	unsigned int machineCode;
 	InstructionType type;
 	int labelIdx;
+	int address;
 } Instruction;
 
 
@@ -35,7 +36,7 @@ typedef struct {
 
 void CreateInstructionProgram(InstructionProgram *sym);
 
-int InsertInstruction(InstructionProgram *sym, Symbol op, unsigned int code, int lblIdx, InstructionType type);
+int InsertInstruction(InstructionProgram *sym, int addr, Symbol op, unsigned int code, int lblIdx, InstructionType type);
 
 void ResolveSymbolicName(InstructionProgram *sym, LabelList *lbl);
 

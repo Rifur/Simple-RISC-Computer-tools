@@ -1,0 +1,19 @@
+cnt:	.equ	8
+		.org	0
+seq:	.dc	1
+		.dc	1
+		.dw	cnt
+		.org	4096
+maim:	lar  r31, loop
+		la  r0, cnt
+		la   r1, 0
+		la   r2, 4
+loop:	ld   r3, seq(r1)
+		addi r1, r1, 4
+		ld   r4, seq(r1)
+		add  r3, r3, r4
+		addi r2, r2, 4
+		st   r3, seq(r2)
+		addi r0, r0, -1
+		brnz r31, r0
+		stop

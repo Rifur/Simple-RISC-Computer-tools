@@ -27,6 +27,10 @@ OpCode op [] = {
 	{"not",	not, TypeIII},
 
 	{"stop", stop, TypeIII},
+	{".org", org, Pseudotype},
+	{".equ", equ, Pseudotype},
+	{".dc", dc, Pseudotype},
+	{".dw", dw, Pseudotype},
 
 	{"--", -1, TypeIII}
 };

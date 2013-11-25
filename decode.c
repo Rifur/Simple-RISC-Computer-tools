@@ -59,21 +59,33 @@ void decode_typeI(unsigned int code, int *ra, int *c1)
 	code = code & 0x7FFFFFF;
 	*ra = code >> 22;
 	*c1 = code & 0x3FFFFF;
+
+	if(*c1 >= 0x200000) {
+		*c1 = *c1 | 0xFFC00000;
+	}
 }
 
 void decode_typeII(unsigned int code, int *ra, int *rb, int *c2)
 {
 	code = code & 0x7FFFFFF;
 	*ra = code >> 22;
-	*rb = (code >> 17) & 0xF;
+	*rb = (code >> 17) & 0x1F;
 	*c2 = code & 0x1FFFF;
+
+	if(*c2 >= 0x10000) {
+		*c2 = *c2 | 0xFFFE0000;
+	}
 }
 
 void decode_typeIII(unsigned int code, int *ra, int *rb, int *rc, int *c3)
 {
 	code = code & 0x7FFFFFF;
 	*ra = code >> 22;
-	*rb = (code >> 17) & 0xF;
-	*rc = (code >> 12) & 0xF;
+	*rb = (code >> 17) & 0x1F;
+	*rc = (code >> 12) & 0x1F;
 	*c3 = code & 0xFFF;
+
+	if(*c3 >= 0x800) {
+		*c3 = *c3 | 0xFFFFF000;
+	}
 }

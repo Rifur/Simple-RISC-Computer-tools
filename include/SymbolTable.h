@@ -17,8 +17,11 @@
 
 
 typedef struct {
+	int key;
 	char *name;
 	int	address;
+	int value;
+	enum { constant, label, unknown } type;
 } Label;
 
 typedef struct 
@@ -32,9 +35,11 @@ void CreateLabelList(LabelList *sym);
 
 int InsertLabel(LabelList *lblList, const char *name, int addr);
 
-int SearchLabelByName(const char *name);
+Label* SearchLabelByName(LabelList *lblList, const char *name);
 
 Label* SearchLabel(LabelList *lblList, int index);
+
+Label* LastLabel(LabelList *lblList);
 
 void DumpLabelList(LabelList *lblList);
 

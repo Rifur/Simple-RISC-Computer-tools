@@ -28,7 +28,11 @@ typedef enum {
 	ori,
 	not,
 
-	stop=31
+	stop=31,
+	org,
+	equ,
+	dc,
+	dw
 
 } Symbol;
 
@@ -36,7 +40,8 @@ typedef enum {
 typedef enum {
 	TypeI,
 	TypeII,
-	TypeIII
+	TypeIII,
+	Pseudotype
 } InstructionType;
 
 /*	OpCode	*/

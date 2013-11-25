@@ -41,7 +41,7 @@ void CreateInstructionProgram(InstructionProgram *sym)
 /**
  * Insert a Label info label list.
  */  
-int InsertInstruction(InstructionProgram *sym, Symbol op, unsigned int code, int lblIdx, InstructionType type)
+int InsertInstruction(InstructionProgram *sym, int addr, Symbol op, unsigned int code, int lblIdx, InstructionType type)
 {
 	InstructionProgram *tb = sym;
 	int i;
@@ -53,6 +53,7 @@ int InsertInstruction(InstructionProgram *sym, Symbol op, unsigned int code, int
 	
 	Instruction *obj = &tb->ins[tb->count];
 	obj->opcode = op;
+	obj->address = addr;
 	obj->machineCode = code;
 	obj->labelIdx = lblIdx;
 	obj->type = type;
@@ -67,15 +68,22 @@ int InsertInstruction(InstructionProgram *sym, Symbol op, unsigned int code, int
 void ResolveSymbolicName(InstructionProgram *sym, LabelList *lbl)
 {
 	int i;
+	int startAddr = 0;
 	Label *b;
 	unsigned int code;
 
 	for(i=0; i<sym->count; ++i) {
+		if(sym->ins[i].opcode == org) {
+			startAddr = sym->ins[i].machineCode;
+			continue;
+		}
+
 		if(sym->ins[i].labelIdx == NO_LABEL) {
 			continue;
 		}
 
 		b = SearchLabel(lbl, sym->ins[i].labelIdx);
+
 		if(b == NULL) {
 			yyerror("error: Unknown label.");
 		}
@@ -84,21 +92,32 @@ void ResolveSymbolicName(InstructionProgram *sym, LabelList *lbl)
 			printf("error: No address label: %s", b->name);
 			yyerror("\n");
 		}
-
+		
 		code = sym->ins[i].machineCode;
-		switch(sym->ins[i].type) {
-			case TypeI:
-				code = codegen_typeI(sym->ins[i].machineCode, 0, 0, b->address);
+		switch(sym->ins[i].opcode) {
+			case lar:
+				code = codegen_typeI(sym->ins[i].machineCode, 0, 0, (b->address - sym->ins[i].address) - 4);
+			break;
+			case la:
+				code = codegen_typeI(sym->ins[i].machineCode, 0, 0, b->value);
 			break;
 
-			case TypeII:
-				code = codegen_typeII(sym->ins[i].machineCode, 0, 0, 0, b->address);
-			break;
+			default:
+				switch(sym->ins[i].type) {
+					case TypeI:
+						code = codegen_typeI(sym->ins[i].machineCode, 0, 0, b->address);
+					break;
 
-			case TypeIII:
-				code = codegen_typeIII(sym->ins[i].machineCode, 0, 0, 0, 0, b->address);
-			break;
+					case TypeII:
+						code = codegen_typeII(sym->ins[i].machineCode, 0, 0, 0, b->address);
+					break;
+
+					case TypeIII:
+						code = codegen_typeIII(sym->ins[i].machineCode, 0, 0, 0, 0, b->address);
+					break;
+				}
 		}
+
 		sym->ins[i].machineCode = code;
 
 	}
@@ -114,7 +133,7 @@ void DumpInstructionProgram(InstructionProgram *sym)
 	int i;
 	printf("--\n==== DUMP MACHINE CODE ====\n");
 	for(i=0; i<sym->count; ++i) {
-		printf("%10X type %d", sym->ins[i].machineCode, sym->ins[i].type);
+		printf("%10X %10d type %d", sym->ins[i].machineCode, sym->ins[i].machineCode, sym->ins[i].type+1);
 		if(sym->ins[i].labelIdx != NO_LABEL) {
 			printf("\tLabel index: #%d", sym->ins[i].labelIdx);
 		}
@@ -129,6 +148,7 @@ void DumpInstructionProgram(InstructionProgram *sym)
 void OutputInstructionProgram(FILE *fdst, InstructionProgram *sym)
 {
 	int i;
+	int loc = 0;
 	unsigned tmp;
 
 	if(fdst == NULL) {
@@ -136,7 +156,14 @@ void OutputInstructionProgram(FILE *fdst, InstructionProgram *sym)
 	}
 
 	for(i=0; i<sym->count; ++i) {
-		tmp = htonl(sym->ins[i].machineCode);
-		fwrite(&tmp, sizeof(unsigned int), 1, fdst);
+		
+		if(sym->ins[i].opcode == org) {
+			loc = sym->ins[i].machineCode;
+			//continue;
+		}
+
+		fprintf(fdst, "%010d\t%08X\n", sym->ins[i].address, sym->ins[i].machineCode);
+		loc += 4;
+				
 	}
 }
